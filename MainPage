@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protected Image Upload</title>
+<style>
+  body { font-family: Arial, sans-serif; background-color: #111; color: #f0f0f0; text-align: center; padding: 20px; }
+  #uploadPanel { display: none; margin-top: 20px; }
+  input[type="file"] { margin: 10px 0; }
+  img { max-width: 200px; margin: 10px; border: 2px solid #333; border-radius: 5px; }
+  #imagesContainer { display: flex; flex-wrap: wrap; justify-content: center; }
+  input[type="password"] { padding: 10px; font-size: 16px; }
+  button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<h1>Protected Image Upload</h1>
+
+<div id="passwordPanel">
+  <p>Enter password to access upload:</p>
+  <input type="password" id="passwordInput" placeholder="Enter code">
+  <button onclick="checkPassword()">Submit</button>
+  <p id="passwordMessage" style="color:red;"></p>
+</div>
+
+<div id="uploadPanel">
+  <h2>Add an Image</h2>
+  <input type="file" id="imageInput" accept="image/*">
+  <button onclick="addImage()">Upload</button>
+  <div id="imagesContainer"></div>
+</div>
+
+<script>
+const PASSWORD = "G7!xP9v#qL2@rTz8";
+
+function checkPassword() {
+  const input = document.getElementById('passwordInput').value;
+  if(input === PASSWORD) {
+    document.getElementById('passwordPanel').style.display = 'none';
+    document.getElementById('uploadPanel').style.display = 'block';
+    loadImages();
+  } else {
+    document.getElementById('passwordMessage').textContent = "Wrong password!";
+  }
+}
+
+function addImage() {
+  const fileInput = document.getElementById('imageInput');
+  const file = fileInput.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const imgData = e.target.result;
+    saveImage(imgData);
+    displayImage(imgData);
+  }
+  reader.readAsDataURL(file);
+  fileInput.value = ""; // clear input
+}
+
+function saveImage(data) {
+  let images = JSON.parse(localStorage.getItem('images')) || [];
+  images.push(data);
+  localStorage.setItem('images', JSON.stringify(images));
+}
+
+function loadImages() {
+  const images = JSON.parse(localStorage.getItem('images')) || [];
+  images.forEach(imgData => displayImage(imgData));
+}
+
+function displayImage(data) {
+  const container = document.getElementById('imagesContainer');
+  const img = document.createElement('img');
+  img.src = data;
+  container.appendChild(img);
+}
+</script>
+
+</body>
+</html>
